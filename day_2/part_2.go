@@ -9,7 +9,7 @@ import (
 )
 
 func Part2() int {
-	input := utils.ReadInput("input")
+	input := utils.ReadInput("./day_2/input")
 
 	var sum int
 

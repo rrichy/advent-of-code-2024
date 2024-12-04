@@ -10,7 +10,7 @@ import (
 )
 
 func Part1() int {
-	input := utils.ReadInput("input")
+	input := utils.ReadInput("./day_1/input")
 
 	var left, right []int
 

@@ -9,6 +9,8 @@ import (
 	day3 "github.com/rrichy/advent-of-code-2024/day_3"
 	day4 "github.com/rrichy/advent-of-code-2024/day_4"
 	day5 "github.com/rrichy/advent-of-code-2024/day_5"
+	day6 "github.com/rrichy/advent-of-code-2024/day_6"
+	"github.com/rrichy/advent-of-code-2024/utils"
 )
 
 func main() {
@@ -30,6 +32,11 @@ func main() {
 	case "5":
 		day5.Part1()
 		day5.Part2()
+	case "6":
+		day6.Part1()
+		day6.Part2()
+	case "check":
+		utils.Checker()
 	default:
 		log.Println("Invalid day")
 	}

@@ -11,6 +11,7 @@ import (
 	day5 "github.com/rrichy/advent-of-code-2024/day_5"
 	day6 "github.com/rrichy/advent-of-code-2024/day_6"
 	day7 "github.com/rrichy/advent-of-code-2024/day_7"
+	day8 "github.com/rrichy/advent-of-code-2024/day_8"
 	"github.com/rrichy/advent-of-code-2024/utils"
 )
 
@@ -39,6 +40,9 @@ func main() {
 	case "7":
 		day7.Part1()
 		day7.Part2()
+	case "8":
+		day8.Part1()
+		day8.Part2()
 	case "check":
 		utils.Checker()
 	default:

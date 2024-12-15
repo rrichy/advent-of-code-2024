@@ -46,7 +46,7 @@ func main() {
 		day8.Part2()
 	case "9":
 		day9.Part1()
-		day9.Part2()
+		day9.Part2Animate()
 	case "check":
 		utils.Checker()
 	default:

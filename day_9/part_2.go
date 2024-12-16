@@ -1,7 +1,6 @@
 package day9
 
 import (
-	"fmt"
 	"log"
 	"math/rand"
 	"strconv"
@@ -179,15 +178,6 @@ func Part2Animate() {
 			}
 		}
 	}
-
-	sum := 0
-	for i, block := range diskMap.Cells {
-		if block != nil {
-			sum += i * *block
-		}
-	}
-
-	fmt.Printf("Sum: %d\n", sum)
 }
 
 const (

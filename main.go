@@ -5,6 +5,7 @@ import (
 	"os"
 
 	day1 "github.com/rrichy/advent-of-code-2024/day_1"
+	day10 "github.com/rrichy/advent-of-code-2024/day_10"
 	day2 "github.com/rrichy/advent-of-code-2024/day_2"
 	day3 "github.com/rrichy/advent-of-code-2024/day_3"
 	day4 "github.com/rrichy/advent-of-code-2024/day_4"
@@ -20,6 +21,7 @@ func main() {
 	args := os.Args[1:]
 
 	switch args[0] {
+	// Execute the code for the specified day
 	case "1":
 		day1.Part1()
 		day1.Part2()
@@ -46,7 +48,12 @@ func main() {
 		day8.Part2()
 	case "9":
 		day9.Part1()
-		day9.Part2Animate()
+		day9.Part2()
+	case "10":
+		day10.Part1()
+		day10.Part2()
+
+	// Unrelated commands
 	case "check":
 		utils.Checker()
 	default:

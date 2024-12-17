@@ -52,6 +52,8 @@ func main() {
 	case "10":
 		day10.Part1()
 		day10.Part2()
+	case "10-animate":
+		day10.Animate2()
 
 	// Unrelated commands
 	case "check":

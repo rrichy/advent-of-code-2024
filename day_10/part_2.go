@@ -13,7 +13,7 @@ func (t *Topography) RateTrailHeadsPart2() {
 }
 
 func (t *Topography) TraversePart2(c Coordinate) int {
-	if t.Map[c.Y][c.X] == 9 {
+	if t.Tiles[c.Y][c.X].Elevation == 9 {
 		return 1
 	}
 

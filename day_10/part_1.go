@@ -1,10 +1,16 @@
 package day10
 
 import (
+	"bytes"
+	"image"
+	_ "image/png"
 	"log"
+	"math/rand"
 	"strconv"
 	"strings"
 
+	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/rrichy/advent-of-code-2024/assets/isometric"
 	"github.com/rrichy/advent-of-code-2024/utils"
 )
 
@@ -18,31 +24,90 @@ type TrailHead struct {
 	Score int
 }
 
+const tileSizeW = 256
+const tileSizeH = 192
+const trailHeadSizeW = 256
+const trailHeadSizeH = 128
+
+type Tile struct {
+	Elevation int
+	Sprite    *ebiten.Image
+}
+
+func NewTile(elevation int, sheet *ebiten.Image) Tile {
+	x := rand.Intn(8)
+	y := 0
+
+	sprite := sheet.SubImage(image.Rect(x*tileSizeW, y*tileSizeH, (x+1)*tileSizeW, (y+1)*tileSizeH)).(*ebiten.Image)
+	return Tile{Elevation: elevation, Sprite: sprite}
+}
+
 type Topography struct {
-	Map        [][]rune
-	TrailHeads []*TrailHead
-	MaxX       int
-	MaxY       int
+	Tiles           [][]Tile
+	TrailHeads      []*TrailHead
+	Width           int
+	Height          int
+	WorldWidth      float64
+	WorldHeight     float64
+	FlagSprite      *ebiten.Image
+	TrailHeadSprite *ebiten.Image
 }
 
 func NewTopography(input string) Topography {
-	topography := [][]rune{}
+	img1, _, err := image.Decode(bytes.NewReader(isometric.Tiles))
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	tileSheet := ebiten.NewImageFromImage(img1)
+
+	img2, _, err := image.Decode(bytes.NewReader(isometric.TileOverlays))
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	tileOverlaySheet := ebiten.NewImageFromImage(img2)
+	trailHeadSprite := tileOverlaySheet.SubImage(image.Rect(1*trailHeadSizeW, 5*trailHeadSizeH, 2*trailHeadSizeW, 6*trailHeadSizeH)).(*ebiten.Image)
+
+	img3, _, err := image.Decode(bytes.NewReader(isometric.Objects))
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	objectSheet := ebiten.NewImageFromImage(img3)
+	flagSprite := objectSheet.SubImage(image.Rect(0, 256, 256, 512)).(*ebiten.Image)
+
+	tiles := [][]Tile{}
 	trailHeads := []*TrailHead{}
 	for y, line := range strings.Split(input, "\n") {
-		runes := []rune{}
+		row := []Tile{}
 		for x, char := range strings.Split(line, "") {
 			c, _ := strconv.Atoi(char)
-			runes = append(runes, rune(c))
+			row = append(row, NewTile(c, tileSheet))
 
 			if c == 0 {
 				trailHeads = append(trailHeads, &TrailHead{Coordinate: Coordinate{X: x, Y: y}})
 			}
 		}
 
-		topography = append(topography, runes)
+		tiles = append(tiles, row)
 	}
 
-	return Topography{Map: topography, TrailHeads: trailHeads, MaxX: len(topography[0]) - 1, MaxY: len(topography) - 1}
+	width := len(tiles[0])
+	height := len(tiles)
+	worldWidth := float64((width + height) * tileSizeW / 2)
+	worldHeight := float64((width + height) * tileSizeH / 2)
+
+	return Topography{
+		Tiles:           tiles,
+		TrailHeads:      trailHeads,
+		Width:           width,
+		Height:          height,
+		WorldWidth:      worldWidth,
+		WorldHeight:     worldHeight,
+		FlagSprite:      flagSprite,
+		TrailHeadSprite: trailHeadSprite,
+	}
 }
 
 func (t *Topography) RateTrailHeadsPart1() {
@@ -61,16 +126,16 @@ func (t *Topography) GetTrailHeadsTotalScore() int {
 }
 
 func (t *Topography) IsOutOfBounds(c Coordinate) bool {
-	return c.X < 0 || c.X > t.MaxX || c.Y < 0 || c.Y > t.MaxY
+	return c.X < 0 || c.X >= t.Width || c.Y < 0 || c.Y >= t.Height
 }
 
 func (t *Topography) IsTraversable(c1, c2 Coordinate) bool {
-	currentElevation := t.Map[c1.Y][c1.X]
-	return t.Map[c2.Y][c2.X]-currentElevation == 1
+	currentElevation := t.Tiles[c1.Y][c1.X].Elevation
+	return t.Tiles[c2.Y][c2.X].Elevation-currentElevation == 1
 }
 
 func (t *Topography) TraversePart1(c Coordinate, m *map[Coordinate]bool) int {
-	if t.Map[c.Y][c.X] == 9 {
+	if t.Tiles[c.Y][c.X].Elevation == 9 {
 		if (*m)[c] {
 			return 0
 		}

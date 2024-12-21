@@ -51,6 +51,12 @@ type Topography struct {
 	WorldHeight     float64
 	FlagSprite      *ebiten.Image
 	TrailHeadSprite *ebiten.Image
+
+	// Animation
+	CX float64
+	CY float64
+	SX float64
+	SY float64
 }
 
 func NewTopography(input string) Topography {

@@ -22,15 +22,24 @@ func (t *Topography) cartesianToIso(x, y float64) (float64, float64) {
 const ScreenWidth = 1280
 const ScreenHeight = 720
 
+var (
+	maxX           = 1
+	maxY           = 1
+	animationState = 0
+	mapperX        = map[int]int{}
+)
+
 func (t Topography) Draw(screen *ebiten.Image) {
+	animationState = (animationState + 1) % 2
 	op := &ebiten.DrawImageOptions{}
 
-	cx, cy := float64(ScreenWidth/2.05), float64(ScreenHeight/5)
-	scaleX := ScreenWidth / t.WorldWidth
-	scaleY := ScreenHeight / t.WorldHeight
+	for y := 0; y < maxY; y++ {
+		_maxX := mapperX[y]
+		if _maxX == 0 {
+			_maxX = 1
+		}
 
-	for y := 0; y < t.Height; y++ {
-		for x := 0; x < t.Width; x++ {
+		for x := 0; x < _maxX; x++ {
 			xi, yi := t.cartesianToIso(float64(x), float64(y))
 
 			tile := t.Tiles[y][x]
@@ -45,9 +54,9 @@ func (t Topography) Draw(screen *ebiten.Image) {
 
 				op.GeoM.Translate(0, -64*e)
 
-				op.GeoM.Scale(scaleX, scaleY)
+				op.GeoM.Scale(t.SX, t.SY)
 
-				op.GeoM.Translate(cx, cy)
+				op.GeoM.Translate(t.CX, t.CY)
 
 				tile.Draw(screen, op)
 			}
@@ -57,9 +66,9 @@ func (t Topography) Draw(screen *ebiten.Image) {
 				// Move to current isometric position.
 				op.GeoM.Translate(xi, yi)
 
-				op.GeoM.Scale(scaleX, scaleY)
+				op.GeoM.Scale(t.SX, t.SY)
 
-				op.GeoM.Translate(cx, cy)
+				op.GeoM.Translate(t.CX, t.CY)
 
 				screen.DrawImage(t.TrailHeadSprite, op)
 			}
@@ -71,11 +80,21 @@ func (t Topography) Draw(screen *ebiten.Image) {
 
 				op.GeoM.Translate(0, -64*11)
 
-				op.GeoM.Scale(scaleX, scaleY)
+				op.GeoM.Scale(t.SX, t.SY)
 
-				op.GeoM.Translate(cx, cy)
+				op.GeoM.Translate(t.CX, t.CY)
 
 				screen.DrawImage(t.FlagSprite, op)
+			}
+		}
+
+		if animationState == 0 {
+			if _maxX < t.Width {
+				mapperX[y] = _maxX + 1
+			}
+
+			if _maxX == t.Width && y == maxY-1 && maxY < t.Height {
+				maxY++
 			}
 		}
 	}
@@ -98,6 +117,11 @@ func Animate2() {
 	input := utils.ReadInput("day_10/input")
 
 	topography := NewTopography(input)
+
+	topography.CX = float64(ScreenWidth / 2.05)
+	topography.CY = float64(ScreenHeight / 5)
+	topography.SX = ScreenWidth / topography.WorldWidth
+	topography.SY = ScreenHeight / topography.WorldHeight
 
 	if err := ebiten.RunGame(topography); err != nil {
 		log.Fatal(err)

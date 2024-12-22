@@ -6,6 +6,7 @@ import (
 
 	day1 "github.com/rrichy/advent-of-code-2024/day_1"
 	day10 "github.com/rrichy/advent-of-code-2024/day_10"
+	day11 "github.com/rrichy/advent-of-code-2024/day_11"
 	day2 "github.com/rrichy/advent-of-code-2024/day_2"
 	day3 "github.com/rrichy/advent-of-code-2024/day_3"
 	day4 "github.com/rrichy/advent-of-code-2024/day_4"
@@ -52,6 +53,9 @@ func main() {
 	case "10":
 		day10.Part1()
 		day10.Part2()
+	case "11":
+		day11.Part1()
+		day11.Part2()
 	case "10-animate":
 		day10.Animate2()
 

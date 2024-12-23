@@ -1,11 +1,6 @@
 .PHONY: run
 run:
 	@read -p "Enter which day to execute: " day;\
-	go run main.go $$day
-
-.PHONY: exec
-exec:
-	@read -p "Enter which day to execute: " day;\
 	cd day_$$day; \
 	go run main.go part_1.go part_2.go
 

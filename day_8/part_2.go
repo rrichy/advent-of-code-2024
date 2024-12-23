@@ -1,14 +1,11 @@
-package day8
+package main
 
 import (
 	"fmt"
 	"strings"
-
-	"github.com/rrichy/advent-of-code-2024/utils"
 )
 
 func Part2() int {
-	input := utils.ReadInput("day_8/input")
 	lines := strings.Split(input, "\n")
 	height := len(lines)
 	width := len(strings.Split(lines[0], ""))

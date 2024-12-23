@@ -1,4 +1,4 @@
-package day10
+package main
 
 import (
 	"fmt"
@@ -6,7 +6,6 @@ import (
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
-	"github.com/rrichy/advent-of-code-2024/utils"
 )
 
 func (t *Tile) Draw(screen *ebiten.Image, options *ebiten.DrawImageOptions) {
@@ -23,7 +22,6 @@ const ScreenWidth = 1280
 const ScreenHeight = 720
 
 var (
-	maxX           = 1
 	maxY           = 1
 	animationState = 0
 	mapperX        = map[int]int{}
@@ -113,8 +111,6 @@ func (t Topography) Update() error {
 func Animate2() {
 	ebiten.SetWindowTitle("Isometric (Ebitengine Demo)")
 	ebiten.SetWindowSize(ScreenWidth, ScreenHeight)
-
-	input := utils.ReadInput("day_10/input")
 
 	topography := NewTopography(input)
 

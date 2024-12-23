@@ -1,17 +1,13 @@
-package day7
+package main
 
 import (
 	"fmt"
 	"math"
 	"strconv"
 	"strings"
-
-	"github.com/rrichy/advent-of-code-2024/utils"
 )
 
 func Part2() int {
-	input := utils.ReadInput("day_7/input")
-
 	total := 0
 	for _, _line := range strings.Split(input, "\n") {
 		line := strings.Split(_line, ": ")

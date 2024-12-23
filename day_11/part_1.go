@@ -1,15 +1,12 @@
-package day11
+package main
 
 import (
 	"log"
 	"strconv"
 	"strings"
-
-	"github.com/rrichy/advent-of-code-2024/utils"
 )
 
 func Part1() int {
-	input := utils.ReadInput("day_11/input")
 	stones := strings.Split(input, " ")
 
 	blinkCount := 25

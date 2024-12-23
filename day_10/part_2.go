@@ -1,9 +1,7 @@
-package day10
+package main
 
 import (
 	"log"
-
-	"github.com/rrichy/advent-of-code-2024/utils"
 )
 
 func (t *Topography) RateTrailHeadsPart2() {
@@ -47,8 +45,6 @@ func (t *Topography) TraversePart2(c Coordinate) int {
 }
 
 func Part2() int {
-	input := utils.ReadInput("day_10/input")
-
 	topography := NewTopography(input)
 	topography.RateTrailHeadsPart2()
 

@@ -1,4 +1,4 @@
-package day9
+package main
 
 import (
 	"log"
@@ -86,8 +86,6 @@ func (d *DiskMap) Paint(s tcell.Screen) {
 }
 
 func Part2() int {
-	input := utils.ReadInput("day_9/input")
-
 	diskMap := DiskMap{}
 	currentId := 0
 	diskMapPointer := 0

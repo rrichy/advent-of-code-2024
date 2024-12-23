@@ -1,17 +1,13 @@
-package day3
+package main
 
 import (
 	"log"
 	"regexp"
 	"strconv"
 	"strings"
-
-	"github.com/rrichy/advent-of-code-2024/utils"
 )
 
 func Part1() int {
-	input := utils.ReadInput("./day_3/input")
-
 	var sum int
 
 	for _, line := range strings.Split(input, "\n") {

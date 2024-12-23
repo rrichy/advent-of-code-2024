@@ -1,4 +1,4 @@
-package day5
+package main
 
 import (
 	"log"
@@ -14,8 +14,6 @@ type Order struct {
 }
 
 func Part1() int {
-	input := utils.ReadInput("./day_5/input")
-
 	sections := strings.Split(input, "\n\n")
 
 	orders := make(map[string]Order, 0)

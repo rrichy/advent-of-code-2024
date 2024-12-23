@@ -1,10 +1,8 @@
-package day11
+package main
 
 import (
 	"log"
 	"strings"
-
-	"github.com/rrichy/advent-of-code-2024/utils"
 )
 
 func Count(m map[string]int) int {
@@ -17,7 +15,6 @@ func Count(m map[string]int) int {
 }
 
 func Part2() int {
-	input := utils.ReadInput("day_11/input")
 	stones := strings.Split(input, " ")
 
 	blinkCount := 75

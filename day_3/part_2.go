@@ -1,17 +1,13 @@
-package day3
+package main
 
 import (
 	"log"
 	"regexp"
 	"strconv"
 	"strings"
-
-	"github.com/rrichy/advent-of-code-2024/utils"
 )
 
 func Part2() int {
-	input := utils.ReadInput("./day_3/input")
-
 	var sum int
 
 	muls := []string{}

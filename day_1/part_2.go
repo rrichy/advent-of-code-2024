@@ -1,16 +1,12 @@
-package day1
+package main
 
 import (
 	"log"
 	"strconv"
 	"strings"
-
-	"github.com/rrichy/advent-of-code-2024/utils"
 )
 
 func Part2() int {
-	input := utils.ReadInput("./day_1/input")
-
 	var left, right []int
 
 	for _, line := range strings.Split(input, "\n") {

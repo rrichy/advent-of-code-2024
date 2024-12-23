@@ -1,11 +1,9 @@
-package day9
+package main
 
 import (
 	"fmt"
 	"strconv"
 	"strings"
-
-	"github.com/rrichy/advent-of-code-2024/utils"
 )
 
 type Free struct {
@@ -74,8 +72,6 @@ func (d DiskMap) Print() {
 }
 
 func Part1() int {
-	input := utils.ReadInput("day_9/input")
-
 	diskMap := DiskMap{}
 	currentId := 0
 	diskMapPointer := 0

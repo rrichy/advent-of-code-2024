@@ -1,4 +1,4 @@
-package day2
+package main
 
 import (
 	"log"
@@ -9,8 +9,6 @@ import (
 )
 
 func Part2() int {
-	input := utils.ReadInput("./day_2/input")
-
 	var sum int
 
 	for _, line := range strings.Split(input, "\n") {

@@ -1,4 +1,4 @@
-package day4
+package main
 
 import (
 	"fmt"
@@ -9,13 +9,7 @@ import (
 )
 
 func Part1() int {
-	input := utils.ReadInput("./day_4/input")
-
-	lines := [][]string{}
-
-	for _, line := range strings.Split(input, "\n") {
-		lines = append(lines, strings.Split(line, ""))
-	}
+	lines := utils.New2DStringMatrix(input)
 
 	count := 0
 	n := len(lines)

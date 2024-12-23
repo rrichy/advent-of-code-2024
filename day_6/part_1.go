@@ -1,10 +1,8 @@
-package day6
+package main
 
 import (
 	"fmt"
 	"strings"
-
-	"github.com/rrichy/advent-of-code-2024/utils"
 )
 
 type Position struct {
@@ -56,8 +54,6 @@ func (p *Position) GetNextPossibleCoordinates() (x, y int) {
 }
 
 func Part1() int {
-	input := utils.ReadInput("day_6/input")
-
 	grid := [][]string{}
 	current_pos := Position{}
 

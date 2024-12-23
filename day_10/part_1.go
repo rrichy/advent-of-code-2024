@@ -1,4 +1,4 @@
-package day10
+package main
 
 import (
 	"bytes"
@@ -11,7 +11,6 @@ import (
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/rrichy/advent-of-code-2024/assets/isometric"
-	"github.com/rrichy/advent-of-code-2024/utils"
 )
 
 type Coordinate struct {
@@ -180,8 +179,6 @@ func (t *Topography) TraversePart1(c Coordinate, m *map[Coordinate]bool) int {
 }
 
 func Part1() int {
-	input := utils.ReadInput("day_10/input")
-
 	topography := NewTopography(input)
 	topography.RateTrailHeadsPart1()
 

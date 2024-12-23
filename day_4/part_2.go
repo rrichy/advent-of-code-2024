@@ -1,9 +1,8 @@
-package day4
+package main
 
 import (
 	"fmt"
 	"log"
-	"strings"
 
 	"github.com/rrichy/advent-of-code-2024/utils"
 )
@@ -15,13 +14,7 @@ M.S   M.M   S.S   S.M
 */
 
 func Part2() int {
-	input := utils.ReadInput("./day_4/input")
-
-	lines := [][]string{}
-
-	for _, line := range strings.Split(input, "\n") {
-		lines = append(lines, strings.Split(line, ""))
-	}
+	lines := utils.New2DStringMatrix(input)
 
 	count := 0
 	n := len(lines)

@@ -3,8 +3,23 @@ package utils
 import (
 	"log"
 	"os"
+	"strconv"
 	"strings"
 )
+
+type Coordinate struct {
+	X int
+	Y int
+}
+
+func MustAtoi(s string) int {
+	i, err := strconv.Atoi(s)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	return i
+}
 
 func AbsInt(n int) int {
 	if n < 0 {

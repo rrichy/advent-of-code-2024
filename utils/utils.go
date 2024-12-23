@@ -3,6 +3,7 @@ package utils
 import (
 	"log"
 	"os"
+	"strings"
 )
 
 func AbsInt(n int) int {
@@ -29,4 +30,13 @@ func SliceContains[T comparable](slice []T, s T) bool {
 		}
 	}
 	return false
+}
+
+func New2DStringMatrix(s string) [][]string {
+	temp := [][]string{}
+	for _, line := range strings.Split(s, "\n") {
+		temp = append(temp, strings.Split(line, ""))
+	}
+
+	return temp
 }

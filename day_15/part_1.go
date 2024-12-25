@@ -14,6 +14,7 @@ type Object struct {
 	Coordinate
 	Movable bool
 	Char    string
+	Couple  *Object
 }
 
 type Warehouse struct {
@@ -31,11 +32,11 @@ func NewWarehouse(s string) Warehouse {
 		l := []*Object{}
 		for x, char := range strings.Split(line, "") {
 			if char == "#" {
-				l = append(l, &Object{Coordinate{X: x, Y: y}, false, char})
+				l = append(l, &Object{Coordinate{X: x, Y: y}, false, char, nil})
 			} else if char == "." {
 				l = append(l, nil)
 			} else {
-				l = append(l, &Object{Coordinate{X: x, Y: y}, true, char})
+				l = append(l, &Object{Coordinate{X: x, Y: y}, true, char, nil})
 				if char == "@" {
 					w.Robot = l[x]
 				}
@@ -76,15 +77,7 @@ func (w *Warehouse) Move(o *Object, dc *Coordinate) bool {
 		return false
 	}
 
-	if w.Map[c.Y][c.X] == nil {
-		w.Map[o.Y][o.X] = nil
-		w.Map[c.Y][c.X] = o
-		o.X = c.X
-		o.Y = c.Y
-		return true
-	}
-
-	if w.Move(w.Map[c.Y][c.X], dc) {
+	if w.Map[c.Y][c.X] == nil || w.Move(w.Map[c.Y][c.X], dc) {
 		w.Map[o.Y][o.X] = nil
 		w.Map[c.Y][c.X] = o
 		o.X = c.X
@@ -133,7 +126,7 @@ func Part1() int {
 	sum := 0
 	for y, line := range w.Map {
 		for x, o := range line {
-			if o != nil && o.Char != "#" && o.Char != "@" {
+			if o != nil && o.Char == "O" {
 				sum += 100*y + x
 			}
 		}

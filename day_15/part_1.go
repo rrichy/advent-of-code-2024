@@ -5,6 +5,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/rrichy/advent-of-code-2024/utils"
 )
 
@@ -12,16 +13,19 @@ type Coordinate utils.Coordinate
 
 type Object struct {
 	Coordinate
-	Movable bool
-	Char    string
-	Couple  *Object
+	Movable            bool
+	Char               string
+	Couple             *Object
+	Sprite             *ebiten.Image
+	PreviousCoordinate *Coordinate
 }
 
 type Warehouse struct {
-	Map    [][]*Object
-	Robot  *Object
-	Width  int
-	Height int
+	Map      [][]*Object
+	Robot    *Object
+	Width    int
+	Height   int
+	Commands []string
 }
 
 func NewWarehouse(s string) Warehouse {
@@ -32,11 +36,11 @@ func NewWarehouse(s string) Warehouse {
 		l := []*Object{}
 		for x, char := range strings.Split(line, "") {
 			if char == "#" {
-				l = append(l, &Object{Coordinate{X: x, Y: y}, false, char, nil})
+				l = append(l, &Object{Coordinate{X: x, Y: y}, false, char, nil, nil, nil})
 			} else if char == "." {
 				l = append(l, nil)
 			} else {
-				l = append(l, &Object{Coordinate{X: x, Y: y}, true, char, nil})
+				l = append(l, &Object{Coordinate{X: x, Y: y}, true, char, nil, nil, nil})
 				if char == "@" {
 					w.Robot = l[x]
 				}

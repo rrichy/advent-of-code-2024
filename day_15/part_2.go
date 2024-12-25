@@ -4,7 +4,13 @@ import (
 	"log"
 	"strings"
 	"time"
+
+	"github.com/hajimehoshi/ebiten/v2"
 )
+
+func NewObject(x, y int, movable bool, char string, sprite *ebiten.Image) Object {
+	return Object{Coordinate{x, y}, movable, char, nil, sprite, nil}
+}
 
 func NewWarehouseTwice(s string) Warehouse {
 	w := Warehouse{
@@ -14,19 +20,19 @@ func NewWarehouseTwice(s string) Warehouse {
 		l := []*Object{}
 		for x, char := range strings.Split(line, "") {
 			if char == "#" {
-				o1 := Object{Coordinate{X: x * 2, Y: y}, false, char, nil}
-				o2 := Object{Coordinate{X: x*2 + 1, Y: y}, false, char, nil}
+				o1 := NewObject(x*2, y, false, char, nil)
+				o2 := NewObject(x*2+1, y, false, char, nil)
 				l = append(l, &o1, &o2)
 			} else if char == "." {
 				l = append(l, nil, nil)
 			} else if char == "O" {
-				o1 := Object{Coordinate{X: x * 2, Y: y}, true, "[", nil}
-				o2 := Object{Coordinate{X: x*2 + 1, Y: y}, true, "]", nil}
+				o1 := NewObject(x*2, y, true, "[", nil)
+				o2 := NewObject(x*2+1, y, true, "]", nil)
 				o1.Couple = &o2
 				o2.Couple = &o1
 				l = append(l, &o1, &o2)
 			} else {
-				o := Object{Coordinate{X: x * 2, Y: y}, true, char, nil}
+				o := NewObject(x*2, y, true, char, nil)
 				l = append(l, &o, nil)
 				w.Robot = &o
 			}
@@ -40,17 +46,34 @@ func NewWarehouseTwice(s string) Warehouse {
 	return w
 }
 
-func (w *Warehouse) Move2(o *Object, dc *Coordinate) bool {
-	if o == nil {
+func (w *Warehouse) IsBoxMoveable(o1 *Object, dc *Coordinate) bool {
+	if o1 == nil {
 		return true
 	}
 
-	c := Coordinate{o.X + dc.X, o.Y + dc.Y}
-	if !o.Movable || w.IsOutOfBounds(c) {
+	if !o1.Movable {
 		return false
 	}
 
-	// Robot roaming
+	o2 := o1.Couple
+
+	c1 := Coordinate{o1.X + dc.X, o1.Y + dc.Y}
+	c2 := Coordinate{o2.X + dc.X, o2.Y + dc.Y}
+
+	if w.Map[c1.Y][c1.X] == nil && w.Map[c2.Y][c2.X] == nil {
+		return true
+	}
+
+	return w.IsBoxMoveable(w.Map[c1.Y][c1.X], dc) && w.IsBoxMoveable(w.Map[c2.Y][c2.X], dc)
+}
+
+func (w *Warehouse) Move2(o *Object, dc *Coordinate) bool {
+	if o == nil || !o.Movable {
+		return false
+	}
+
+	c := Coordinate{o.X + dc.X, o.Y + dc.Y}
+
 	if o.Couple == nil || dc.Y == 0 {
 		if w.Map[c.Y][c.X] == nil || w.Move2(w.Map[c.Y][c.X], dc) {
 			w.Map[o.Y][o.X] = nil
@@ -66,7 +89,22 @@ func (w *Warehouse) Move2(o *Object, dc *Coordinate) bool {
 	o2 := o.Couple
 	c2 := Coordinate{o.Couple.X + dc.X, o.Couple.Y + dc.Y}
 
-	if (w.Map[c.Y][c.X] == nil && w.Map[c2.Y][c2.X] == nil) || (w.Move2(w.Map[c.Y][c.X], dc) && w.Move2(w.Map[c2.Y][c2.X], dc)) {
+	if w.Map[c.Y][c.X] == nil && w.Map[c2.Y][c2.X] == nil {
+		w.Map[o.Y][o.X] = nil
+		w.Map[o2.Y][o2.X] = nil
+		w.Map[c.Y][c.X] = o
+		w.Map[c2.Y][c2.X] = o2
+		o.X = c.X
+		o.Y = c.Y
+		o2.X = c2.X
+		o2.Y = c2.Y
+		return true
+	}
+
+	if w.IsBoxMoveable(o, dc) {
+		w.Move2(w.Map[c.Y][c.X], dc)
+		w.Move2(w.Map[c2.Y][c2.X], dc)
+
 		w.Map[o.Y][o.X] = nil
 		w.Map[o2.Y][o2.X] = nil
 		w.Map[c.Y][c.X] = o
@@ -86,7 +124,7 @@ func Part2() int {
 		log.Println("time", time.Since(t))
 	}(time.Now())
 
-	s := strings.Split(sample3, "\n\n")
+	s := strings.Split(input, "\n\n")
 	w := NewWarehouseTwice(s[0])
 
 	for _, line := range strings.Split(s[1], "\n") {
@@ -112,11 +150,9 @@ func Part2() int {
 				sum += 100*y + x
 			}
 		}
-		log.Print(s)
 	}
 
 	log.Print(sum)
 
-	//1517281 too low
 	return sum
 }

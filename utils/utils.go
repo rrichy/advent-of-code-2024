@@ -1,10 +1,14 @@
 package utils
 
 import (
+	"bytes"
+	"image"
 	"log"
 	"os"
 	"strconv"
 	"strings"
+
+	"github.com/hajimehoshi/ebiten/v2"
 )
 
 type Coordinate struct {
@@ -54,4 +58,17 @@ func New2DStringMatrix(s string) [][]string {
 	}
 
 	return temp
+}
+
+func ImageMustDecode(data []byte) image.Image {
+	img, _, err := image.Decode(bytes.NewReader(data))
+	if err != nil {
+		log.Fatal(err)
+	}
+	return img
+}
+
+func GetSpriteSheet(data []byte) *ebiten.Image {
+	img := ImageMustDecode(data)
+	return ebiten.NewImageFromImage(img)
 }

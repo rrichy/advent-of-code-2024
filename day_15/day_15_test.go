@@ -13,5 +13,5 @@ func TestPart1(t *testing.T) {
 
 func TestPart2(t *testing.T) {
 	result := Part2()
-	assert.Equal(t, result, 902620)
+	assert.Equal(t, result, 1522420)
 }

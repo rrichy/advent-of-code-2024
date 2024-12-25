@@ -8,8 +8,8 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 )
 
-func NewObject(x, y int, movable bool, char string, sprite *ebiten.Image) Object {
-	return Object{Coordinate{x, y}, movable, char, nil, sprite, nil}
+func NewObject(x, y int, movable bool, char string) Object {
+	return Object{Coordinate{x, y}, movable, char, nil, []*ebiten.Image{}, nil, false}
 }
 
 func NewWarehouseTwice(s string) Warehouse {
@@ -20,19 +20,19 @@ func NewWarehouseTwice(s string) Warehouse {
 		l := []*Object{}
 		for x, char := range strings.Split(line, "") {
 			if char == "#" {
-				o1 := NewObject(x*2, y, false, char, nil)
-				o2 := NewObject(x*2+1, y, false, char, nil)
+				o1 := NewObject(x*2, y, false, char)
+				o2 := NewObject(x*2+1, y, false, char)
 				l = append(l, &o1, &o2)
 			} else if char == "." {
 				l = append(l, nil, nil)
 			} else if char == "O" {
-				o1 := NewObject(x*2, y, true, "[", nil)
-				o2 := NewObject(x*2+1, y, true, "]", nil)
+				o1 := NewObject(x*2, y, true, "[")
+				o2 := NewObject(x*2+1, y, true, "]")
 				o1.Couple = &o2
 				o2.Couple = &o1
 				l = append(l, &o1, &o2)
 			} else {
-				o := NewObject(x*2, y, true, char, nil)
+				o := NewObject(x*2, y, true, char)
 				l = append(l, &o, nil)
 				w.Robot = &o
 			}

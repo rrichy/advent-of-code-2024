@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"image"
 	"log"
+	"math/rand"
 	"os"
 	"strconv"
 	"strings"
@@ -71,4 +72,8 @@ func ImageMustDecode(data []byte) image.Image {
 func GetSpriteSheet(data []byte) *ebiten.Image {
 	img := ImageMustDecode(data)
 	return ebiten.NewImageFromImage(img)
+}
+
+func RandBool() bool {
+	return rand.Intn(2) == 1
 }

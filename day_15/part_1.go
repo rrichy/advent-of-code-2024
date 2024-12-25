@@ -16,16 +16,18 @@ type Object struct {
 	Movable            bool
 	Char               string
 	Couple             *Object
-	Sprite             *ebiten.Image
+	Sprites            []*ebiten.Image
 	PreviousCoordinate *Coordinate
+	IsWater            bool
 }
 
 type Warehouse struct {
-	Map      [][]*Object
-	Robot    *Object
-	Width    int
-	Height   int
-	Commands []string
+	Map           [][]*Object
+	GroundSprites [][]*ebiten.Image
+	Robot         *Object
+	Width         int
+	Height        int
+	Commands      []string
 }
 
 func NewWarehouse(s string) Warehouse {
@@ -36,11 +38,11 @@ func NewWarehouse(s string) Warehouse {
 		l := []*Object{}
 		for x, char := range strings.Split(line, "") {
 			if char == "#" {
-				l = append(l, &Object{Coordinate{X: x, Y: y}, false, char, nil, nil, nil})
+				l = append(l, &Object{Coordinate{X: x, Y: y}, false, char, nil, nil, nil, false})
 			} else if char == "." {
 				l = append(l, nil)
 			} else {
-				l = append(l, &Object{Coordinate{X: x, Y: y}, true, char, nil, nil, nil})
+				l = append(l, &Object{Coordinate{X: x, Y: y}, true, char, nil, nil, nil, false})
 				if char == "@" {
 					w.Robot = l[x]
 				}

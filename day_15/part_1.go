@@ -19,15 +19,19 @@ type Object struct {
 	Sprites            []*ebiten.Image
 	PreviousCoordinate *Coordinate
 	IsWater            bool
+	Sheep1Sprite       bool
+	Sheep2Sprite       bool
 }
 
 type Warehouse struct {
-	Map           [][]*Object
-	GroundSprites [][]*ebiten.Image
-	Robot         *Object
-	Width         int
-	Height        int
-	Commands      []string
+	Map            [][]*Object
+	GroundSprites  [][]*ebiten.Image
+	GroundDecors   [][]*int
+	BlockadeDecors [][]*int
+	Robot          *Object
+	Width          int
+	Height         int
+	Commands       []string
 }
 
 func NewWarehouse(s string) Warehouse {
@@ -38,11 +42,11 @@ func NewWarehouse(s string) Warehouse {
 		l := []*Object{}
 		for x, char := range strings.Split(line, "") {
 			if char == "#" {
-				l = append(l, &Object{Coordinate{X: x, Y: y}, false, char, nil, nil, nil, false})
+				l = append(l, &Object{Coordinate{X: x, Y: y}, false, char, nil, nil, nil, false, false, false})
 			} else if char == "." {
 				l = append(l, nil)
 			} else {
-				l = append(l, &Object{Coordinate{X: x, Y: y}, true, char, nil, nil, nil, false})
+				l = append(l, &Object{Coordinate{X: x, Y: y}, true, char, nil, nil, nil, false, false, false})
 				if char == "@" {
 					w.Robot = l[x]
 				}

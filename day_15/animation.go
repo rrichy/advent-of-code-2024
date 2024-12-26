@@ -2,14 +2,13 @@ package main
 
 import (
 	"image"
-	"image/color"
 	_ "image/png"
 	"log"
+	"math/rand"
 	"slices"
 	"strings"
 
 	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/hajimehoshi/ebiten/v2/vector"
 	resources "github.com/rrichy/advent-of-code-2024/assets/topdown/topdown/tiny_swords"
 	"github.com/rrichy/advent-of-code-2024/utils"
 )
@@ -22,9 +21,14 @@ const (
 	TILEMAP_SIZE     = 64
 	FOAM_SIZE        = 192
 	FOAM_FRAME_COUNT = 8
+
+	SHEEP_SIZE         = 128
+	SHEEP1_FRAME_COUNT = 7
+	SHEEP2_FRAME_COUNT = 6
 )
 
 var (
+	sheepSheet  = utils.GetSpriteSheet(resources.HappySheepAll)
 	water       = utils.GetSpriteSheet(resources.Water).SubImage(image.Rect(0, 0, TILEMAP_SIZE, TILEMAP_SIZE)).(*ebiten.Image)
 	foamSheet   = utils.GetSpriteSheet(resources.Foam)
 	groundSheet = utils.GetSpriteSheet(resources.Tilemap_Flat)
@@ -47,6 +51,7 @@ var (
 	ground1X3C = groundSheet.SubImage(image.Rect(3*TILEMAP_SIZE, 2*TILEMAP_SIZE, 4*TILEMAP_SIZE, 3*TILEMAP_SIZE)).(*ebiten.Image)
 	groundS    = groundSheet.SubImage(image.Rect(3*TILEMAP_SIZE, 3*TILEMAP_SIZE, 4*TILEMAP_SIZE, 4*TILEMAP_SIZE)).(*ebiten.Image)
 
+	shadows   = utils.GetSpriteSheet(resources.Shadows)
 	ground2TL = groundSheet.SubImage(image.Rect(5*TILEMAP_SIZE, 0*TILEMAP_SIZE, 6*TILEMAP_SIZE, 1*TILEMAP_SIZE)).(*ebiten.Image)
 	ground2T  = groundSheet.SubImage(image.Rect(6*TILEMAP_SIZE, 0*TILEMAP_SIZE, 7*TILEMAP_SIZE, 1*TILEMAP_SIZE)).(*ebiten.Image)
 	ground2TR = groundSheet.SubImage(image.Rect(7*TILEMAP_SIZE, 0*TILEMAP_SIZE, 8*TILEMAP_SIZE, 1*TILEMAP_SIZE)).(*ebiten.Image)
@@ -65,6 +70,8 @@ var (
 	ground21X3B = groundSheet.SubImage(image.Rect(8*TILEMAP_SIZE, 1*TILEMAP_SIZE, 9*TILEMAP_SIZE, 2*TILEMAP_SIZE)).(*ebiten.Image)
 	ground21X3C = groundSheet.SubImage(image.Rect(8*TILEMAP_SIZE, 2*TILEMAP_SIZE, 9*TILEMAP_SIZE, 3*TILEMAP_SIZE)).(*ebiten.Image)
 	ground2S    = groundSheet.SubImage(image.Rect(8*TILEMAP_SIZE, 3*TILEMAP_SIZE, 9*TILEMAP_SIZE, 4*TILEMAP_SIZE)).(*ebiten.Image)
+	// blend
+	ground2Blend = groundSheet.SubImage(image.Rect(9*TILEMAP_SIZE, 0*TILEMAP_SIZE, 10*TILEMAP_SIZE, 1*TILEMAP_SIZE)).(*ebiten.Image)
 
 	warriorSheet          = utils.GetSpriteSheet(resources.Warrior)
 	tilemapElevationSheet = utils.GetSpriteSheet(resources.Tilemap_Elevation)
@@ -84,6 +91,37 @@ var (
 	elevation3X1C = tilemapElevationSheet.SubImage(image.Rect(2*TILEMAP_SIZE, 2*2*TILEMAP_SIZE, 3*TILEMAP_SIZE, 3*2*TILEMAP_SIZE)).(*ebiten.Image)
 	// 1x1
 	elevationS = tilemapElevationSheet.SubImage(image.Rect(3*TILEMAP_SIZE, 2*2*TILEMAP_SIZE, 4*TILEMAP_SIZE, 3*2*TILEMAP_SIZE)).(*ebiten.Image)
+
+	deco01 = utils.GetSpriteSheet(resources.Deco01)
+	deco02 = utils.GetSpriteSheet(resources.Deco02)
+	deco03 = utils.GetSpriteSheet(resources.Deco03)
+	deco04 = utils.GetSpriteSheet(resources.Deco04)
+	deco05 = utils.GetSpriteSheet(resources.Deco05)
+	deco06 = utils.GetSpriteSheet(resources.Deco06)
+	deco07 = utils.GetSpriteSheet(resources.Deco07)
+	deco08 = utils.GetSpriteSheet(resources.Deco08)
+	deco09 = utils.GetSpriteSheet(resources.Deco09)
+	deco10 = utils.GetSpriteSheet(resources.Deco10)
+	deco11 = utils.GetSpriteSheet(resources.Deco11)
+	deco12 = utils.GetSpriteSheet(resources.Deco12)
+	deco13 = utils.GetSpriteSheet(resources.Deco13)
+	deco14 = utils.GetSpriteSheet(resources.Deco14)
+	deco15 = utils.GetSpriteSheet(resources.Deco15)
+	deco16 = utils.GetSpriteSheet(resources.Deco16)
+	deco17 = utils.GetSpriteSheet(resources.Deco17)
+	deco18 = utils.GetSpriteSheet(resources.Deco18)
+
+	decorations = []*ebiten.Image{deco01, deco02, deco03, deco04, deco05, deco06, deco07, deco08, deco09, deco10, deco11, deco12, deco13, deco14, deco15, deco16, deco17, deco18}
+
+	ArrowUp    = utils.GetSpriteSheet(resources.ArrowUp)
+	ArrowDown  = utils.GetSpriteSheet(resources.ArrowDown)
+	ArrowLeft  = utils.GetSpriteSheet(resources.ArrowLeft)
+	ArrowRight = utils.GetSpriteSheet(resources.ArrowRight)
+
+	BlueButton        = utils.GetSpriteSheet(resources.BlueButton)
+	BlueButtonPressed = utils.GetSpriteSheet(resources.BlueButtonPressed)
+
+	buttons = []*ebiten.Image{BlueButton, BlueButtonPressed}
 )
 
 func (w *Warehouse) NeighbourIsHill(x, y, dx, dy int) bool {
@@ -152,6 +190,11 @@ func (w *Warehouse) SetupBlockadeSprite(x, y int) {
 	} else {
 		w.Map[y][x].Sprites = append(w.Map[y][x].Sprites, elevationS, groundS)
 	}
+
+	if rand.Intn(8) == 0 {
+		index := rand.Intn(18)
+		w.BlockadeDecors[y][x] = &index
+	}
 }
 
 func (w *Warehouse) SetupGroundSprite(x, y int, o *Object) {
@@ -197,6 +240,15 @@ func (w *Warehouse) SetupGroundSprite(x, y int, o *Object) {
 	} else {
 		w.GroundSprites[y][x] = ground2M
 	}
+
+	if o != nil && o.Char == "#" {
+		return
+	}
+
+	if rand.Intn(8) == 0 {
+		index := rand.Intn(15)
+		w.GroundDecors[y][x] = &index
+	}
 }
 
 func NewWarehouseWideAnimate(s string) Warehouse {
@@ -241,10 +293,22 @@ func NewWarehouseWideAnimate(s string) Warehouse {
 
 	for y, line := range w.Map {
 		w.GroundSprites = append(w.GroundSprites, make([]*ebiten.Image, w.Width))
+		w.GroundDecors = append(w.GroundDecors, make([]*int, w.Width))
+		w.BlockadeDecors = append(w.BlockadeDecors, make([]*int, w.Width))
 		for x, o := range line {
 			w.SetupGroundSprite(x, y, o)
-			if o != nil && o.Char == "#" && !o.IsWater {
-				w.SetupBlockadeSprite(x, y)
+
+			if o != nil {
+				if o.Char == "#" && !o.IsWater {
+					w.SetupBlockadeSprite(x, y)
+				}
+				if o.Char == "[" || o.Char == "]" {
+					if utils.RandBool() {
+						o.Sheep1Sprite = true
+					} else {
+						o.Sheep2Sprite = true
+					}
+				}
 			}
 		}
 	}
@@ -253,42 +317,48 @@ func NewWarehouseWideAnimate(s string) Warehouse {
 }
 
 var (
-	maxTilesWidth  = 20
-	maxTilesHeight = 16
+	maxTilesWidth  = 21
+	maxTilesHeight = 17
 	camX           = 0
 	camY           = 0
 	animation      = 0
 	animationState = 0
 	reverse        = false
+	offsetX        = 48
+	offsetY        = 48
+	direction      = ""
 )
 
-func (w *Warehouse) DrawWaters(screen *ebiten.Image, op *ebiten.DrawImageOptions) {
-	for y, row := range w.Map {
-		for x := range row {
-			if x < camX || x >= camX+maxTilesWidth || y < camY || y >= camY+maxTilesHeight {
-				continue
-			}
-
-			op.GeoM.Reset()
-			op.GeoM.Scale(.5, .5)
-			op.GeoM.Translate(float64((x-camX)*32), float64((y-camY)*32))
-
-			screen.DrawImage(water, op)
-		}
+func (w *Warehouse) GetDrawDimensions() (int, int, int, int) {
+	minY := max(0, camY)
+	if minY < 0 {
+		minY = 0
 	}
+	maxY := min(minY+maxTilesHeight, w.Height)
+	minX := max(0, camX)
+	if minX < 0 {
+		minX = 0
+	}
+	maxX := min(minX+maxTilesWidth, w.Width)
+	return minX, minY, maxX, maxY
+}
+
+func (w *Warehouse) DrawWaters(screen *ebiten.Image, op *ebiten.DrawImageOptions) {
+	op.GeoM.Reset()
+	op.GeoM.Scale(float64(maxTilesWidth/2), float64(maxTilesHeight/2+1))
+
+	screen.DrawImage(water, op)
 }
 
 func (w *Warehouse) DrawFoams(screen *ebiten.Image, op *ebiten.DrawImageOptions) {
-	for y, row := range w.Map {
-		for x, o := range row {
-			if x < camX || x >= camX+maxTilesWidth || y < camY || y >= camY+maxTilesHeight {
-				continue
-			}
-
+	minX, minY, maxX, maxY := w.GetDrawDimensions()
+	for y := minY; y < maxY; y++ {
+		for x := minX; x < maxX; x++ {
+			o := w.Map[y][x]
 			if o == nil || (o != nil && o.Couple == nil && !o.IsWater) {
 				op.GeoM.Reset()
 				op.GeoM.Scale(.5, .5)
-				op.GeoM.Translate(float64((x-camX)*32-32), float64((y-camY)*32-32))
+				op.GeoM.Translate(float64((x-camX)*32-offsetX), float64((y-camY)*32-offsetY))
 
 				i := (animation / 5) % FOAM_FRAME_COUNT
 				screen.DrawImage(foamSheet.SubImage(image.Rect(i*FOAM_SIZE, 0, (i+1)*FOAM_SIZE, FOAM_SIZE)).(*ebiten.Image), op)
@@ -298,34 +368,101 @@ func (w *Warehouse) DrawFoams(screen *ebiten.Image, op *ebiten.DrawImageOptions)
 }
 
 func (w *Warehouse) DrawGround(screen *ebiten.Image, op *ebiten.DrawImageOptions) {
-	for y, row := range w.GroundSprites {
-		for x, sprite := range row {
-			if x < camX || x >= camX+maxTilesWidth || y < camY || y >= camY+maxTilesHeight {
-				continue
-			}
-
+	minX, minY, maxX, maxY := w.GetDrawDimensions()
+	for y := minY; y < maxY; y++ {
+		for x := minX; x < maxX; x++ {
+			sprite := w.GroundSprites[y][x]
 			if sprite != nil {
 				op.GeoM.Reset()
 				op.GeoM.Scale(.5, .5)
-				op.GeoM.Translate(float64((x-camX)*32), float64((y-camY)*32))
+				op.GeoM.Translate(float64((x-camX)*32-(offsetX-32)), float64((y-camY)*32-(offsetY-32)))
 				screen.DrawImage(sprite, op)
+			}
+
+			index := w.GroundDecors[y][x]
+			if index != nil {
+				op.GeoM.Reset()
+				op.GeoM.Scale(.5, .5)
+				op.GeoM.Translate(float64((x-camX)*32-(offsetX-32)), float64((y-camY)*32-(offsetY-32)))
+
+				screen.DrawImage(decorations[*index], op)
 			}
 		}
 	}
-
 }
 
 func (w *Warehouse) DrawBlockade(screen *ebiten.Image, object *Object, op *ebiten.DrawImageOptions) {
 	if len(object.Sprites) > 0 {
 		op.GeoM.Reset()
 		op.GeoM.Scale(.5, .5)
-		op.GeoM.Translate(float64((object.X-camX)*32), float64((object.Y-camY)*32-32))
+		op.GeoM.Translate(float64((object.X-camX-1)*32-(offsetX-32)), float64((object.Y-camY)*32-offsetY))
+		screen.DrawImage(shadows, op)
+
+		op.GeoM.Reset()
+		op.GeoM.Scale(.5, .5)
+		op.GeoM.Translate(float64((object.X-camX)*32-(offsetX-32)), float64((object.Y-camY)*32-offsetY))
 		screen.DrawImage(object.Sprites[0], op)
 
 		op.GeoM.Reset()
 		op.GeoM.Scale(.5, .5)
-		op.GeoM.Translate(float64((object.X-camX)*32), float64((object.Y-camY)*32-32))
+		op.GeoM.Translate(float64((object.X-camX)*32-(offsetX-32)), float64((object.Y-camY)*32-offsetY))
 		screen.DrawImage(object.Sprites[1], op)
+
+		op.GeoM.Reset()
+		op.GeoM.Scale(.5, .5)
+		op.GeoM.Translate(float64((object.X-camX)*32-(offsetX-32)), float64((object.Y-camY+1)*32-offsetY))
+		screen.DrawImage(ground2Blend, op)
+
+	}
+
+	index := w.BlockadeDecors[object.Y][object.X]
+	if index != nil {
+		op.GeoM.Reset()
+		op.GeoM.Scale(.5, .5)
+		if *index < 15 {
+			op.GeoM.Translate(float64((object.X-camX)*32-(offsetX-32)), float64((object.Y-camY)*32-offsetY))
+		} else if *index < 17 {
+			op.GeoM.Translate(float64((object.X-camX)*32-(offsetX-32)), float64((object.Y-camY-1)*32-offsetY))
+		} else {
+			op.GeoM.Translate(float64((object.X-camX-1)*32-(offsetX-32)), float64((object.Y-camY-2)*32-offsetY))
+		}
+		screen.DrawImage(decorations[*index], op)
+	}
+}
+
+func (w *Warehouse) DrawDecorations(screen *ebiten.Image, op *ebiten.DrawImageOptions) {
+	for y, row := range w.GroundDecors {
+		for x, index := range row {
+			if x < camX || x >= camX+maxTilesWidth || y < camY || y >= camY+maxTilesHeight || index == nil {
+				continue
+			}
+
+			op.GeoM.Reset()
+			op.GeoM.Scale(.5, .5)
+			op.GeoM.Translate(float64((x-camX)*32), float64((y-camY)*32-32))
+
+			screen.DrawImage(decorations[*index], op)
+		}
+	}
+}
+
+func (w *Warehouse) DrawMovables(screen *ebiten.Image, x, y int, op *ebiten.DrawImageOptions) {
+	op.GeoM.Reset()
+	op.GeoM.Scale(.5, .5)
+	op.GeoM.Translate(float64((x-camX-1)*32), float64((y-camY-1)*32))
+
+	o := w.Map[y][x]
+	if o == nil {
+		return
+	}
+	if o.Sheep1Sprite {
+		i := (animation / 5) % SHEEP1_FRAME_COUNT
+		screen.DrawImage(sheepSheet.SubImage(image.Rect(i*SHEEP_SIZE, 0, (i+1)*SHEEP_SIZE, SHEEP_SIZE)).(*ebiten.Image), op)
+	}
+
+	if o.Sheep2Sprite {
+		i := (animation / 5) % SHEEP2_FRAME_COUNT
+		screen.DrawImage(sheepSheet.SubImage(image.Rect(i*SHEEP_SIZE, SHEEP_SIZE, (i+1)*SHEEP_SIZE, 2*SHEEP_SIZE)).(*ebiten.Image), op)
 	}
 }
 
@@ -334,12 +471,12 @@ func (w *Warehouse) Draw(screen *ebiten.Image) {
 	w.DrawWaters(screen, op)
 	w.DrawFoams(screen, op)
 	w.DrawGround(screen, op)
+	// w.DrawDecorations(screen, op)
 
-	for y, row := range w.Map {
-		for x, o := range row {
-			if x < camX || x >= camX+maxTilesWidth || y < camY || y >= camY+maxTilesHeight {
-				continue
-			}
+	minX, minY, maxX, maxY := w.GetDrawDimensions()
+	for y := minY; y < maxY; y++ {
+		for x := minX; x < maxX; x++ {
+			o := w.Map[y][x]
 
 			if o == nil {
 				continue
@@ -353,18 +490,33 @@ func (w *Warehouse) Draw(screen *ebiten.Image) {
 					op.GeoM.Translate(WARRIOR_WIDTH, 0)
 				}
 				op.GeoM.Scale(.5, .5)
-				op.GeoM.Translate(float64((o.X-camX)*32-32), float64((o.Y-camY)*32-32))
+				op.GeoM.Translate(float64((o.X-camX)*32-48), float64((o.Y-camY)*32-48))
 				i := (animation / 5) % WARRIOR_FRAME_COUNT
 				screen.DrawImage(warriorSheet.SubImage(image.Rect(i*WARRIOR_WIDTH, WARRIOR_HEIGHT, (i+1)*WARRIOR_WIDTH, 2*WARRIOR_HEIGHT)).(*ebiten.Image), op)
-			} else if o.Char == "[" {
-				vector.DrawFilledRect(screen, float32((x-camX)*32), float32((y-camY)*32), 32, 32, color.Gray16{}, true)
-			} else if o.Char == "]" {
-				vector.DrawFilledRect(screen, float32((x-camX)*32), float32((y-camY)*32), 32, 32, color.Gray{}, true)
+			} else if o.Char == "[" || o.Char == "]" {
+				w.DrawMovables(screen, x, y, op)
 			} else {
 				w.DrawBlockade(screen, o, op)
 			}
 		}
+	}
 
+	op.GeoM.Reset()
+	op.GeoM.Translate(float64(maxTilesWidth-3)*32-float64(offsetX-32), float64(maxTilesHeight-3)*32)
+	i := (animation / 10) % 2
+	screen.DrawImage(buttons[i], op)
+
+	op.GeoM.Reset()
+	op.GeoM.Scale(3, 3)
+	op.GeoM.Translate(float64(maxTilesWidth-3)*32, float64(maxTilesHeight-3)*32)
+	if direction == ">" {
+		screen.DrawImage(ArrowRight, op)
+	} else if direction == "<" {
+		screen.DrawImage(ArrowLeft, op)
+	} else if direction == "^" {
+		screen.DrawImage(ArrowUp, op)
+	} else if direction == "v" {
+		screen.DrawImage(ArrowDown, op)
 	}
 }
 
@@ -382,6 +534,7 @@ func (w *Warehouse) Update() error {
 	dir, slice := w.Commands[len(w.Commands)-1], w.Commands[:len(w.Commands)-1]
 	w.Commands = slice
 
+	direction = dir
 	if dir == ">" {
 		reverse = false
 	} else if dir == "<" {
@@ -415,7 +568,7 @@ func Animate() {
 	w.Commands = strings.Split(strings.ReplaceAll(s[1], "\n", ""), "")
 	slices.Reverse(w.Commands)
 
-	ebiten.SetWindowSize(640, 480)
+	ebiten.SetWindowSize(640, 518)
 	ebiten.SetWindowTitle("Advent of Code 2024 - Day 15 - Part 2")
 
 	if err := ebiten.RunGame(&w); err != nil {

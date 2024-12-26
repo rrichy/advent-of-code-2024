@@ -9,7 +9,7 @@ import (
 )
 
 func NewObject(x, y int, movable bool, char string) Object {
-	return Object{Coordinate{x, y}, movable, char, nil, []*ebiten.Image{}, nil, false}
+	return Object{Coordinate{x, y}, movable, char, nil, []*ebiten.Image{}, nil, false, false, false}
 }
 
 func NewWarehouseTwice(s string) Warehouse {

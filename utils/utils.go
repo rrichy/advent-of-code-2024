@@ -17,6 +17,62 @@ type Coordinate struct {
 	Y int
 }
 
+type Direction int
+
+const (
+	Up Direction = iota
+	Down
+	Left
+	Right
+)
+
+func (r *Direction) RotateLeft() {
+	switch *r {
+	case Up:
+		*r = Left
+	case Down:
+		*r = Right
+	case Left:
+		*r = Down
+	case Right:
+		*r = Up
+	}
+}
+
+func (r *Direction) RotateRight() {
+	switch *r {
+	case Up:
+		*r = Right
+	case Down:
+		*r = Left
+	case Left:
+		*r = Up
+	case Right:
+		*r = Down
+	}
+}
+
+func SlicePop[T any](slice []T) (T, []T) {
+	return slice[len(slice)-1], slice[:len(slice)-1]
+}
+
+func SliceMap[T, U any](slice []T, f func(T) U) []U {
+	temp := []U{}
+	for _, v := range slice {
+		temp = append(temp, f(v))
+	}
+
+	return temp
+}
+
+func SliceReduce[T, K any](slice []T, f func(K, T) K, result K) K {
+	for _, v := range slice {
+		result = f(result, v)
+	}
+
+	return result
+}
+
 func MustAtoi(s string) int {
 	i, err := strconv.Atoi(s)
 	if err != nil {

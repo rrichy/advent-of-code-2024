@@ -11,126 +11,25 @@ import (
 
 type Coordinate utils.Coordinate
 
-type Reindeer struct {
-	Coordinate
-	Direction utils.Direction
-}
-
 type Movement struct {
 	Coordinate
 	Direction utils.Direction
-	Score     int
 }
 
-func (r *Reindeer) RotateLeft() {
-	switch r.Direction {
-	case utils.Up:
-		r.Direction = utils.Left
-	case utils.Down:
-		r.Direction = utils.Right
-	case utils.Left:
-		r.Direction = utils.Down
-	case utils.Right:
-		r.Direction = utils.Up
-	}
-}
-
-func (r *Reindeer) RotateRight() {
-	switch r.Direction {
-	case utils.Up:
-		r.Direction = utils.Right
-	case utils.Down:
-		r.Direction = utils.Left
-	case utils.Left:
-		r.Direction = utils.Up
-	case utils.Right:
-		r.Direction = utils.Down
-	}
-}
-
-func (r *Reindeer) Rotate180() {
-	switch r.Direction {
-	case utils.Up:
-		r.Direction = utils.Down
-	case utils.Down:
-		r.Direction = utils.Up
-	case utils.Left:
-		r.Direction = utils.Right
-	case utils.Right:
-		r.Direction = utils.Left
-	}
-}
-
-func (r *Reindeer) Move() {
-	switch r.Direction {
-	case utils.Up:
-		r.Y--
-	case utils.Down:
-		r.Y++
-	case utils.Left:
-		r.X--
-	case utils.Right:
-		r.X++
-	}
-}
-
-func (r *Reindeer) Undo() {
-	switch r.Direction {
-	case utils.Up:
-		r.Y++
-	case utils.Down:
-		r.Y--
-	case utils.Left:
-		r.X++
-	case utils.Right:
-		r.X--
-	}
-}
-
-func (r *Reindeer) GetFrontCoordinate() Coordinate {
-	r.Move()
-	c := r.Coordinate
-	r.Undo()
-	return c
-}
-
-func (r *Reindeer) GetLeftCoordinate() Coordinate {
-	r.RotateLeft()
-	r.Move()
-	c := r.Coordinate
-	r.Undo()
-	r.RotateRight()
-	return c
-}
-
-func (r *Reindeer) GetRightCoordinate() Coordinate {
-	r.RotateRight()
-	r.Move()
-	c := r.Coordinate
-	r.Undo()
-	r.RotateLeft()
-	return c
-}
-
-func (r *Reindeer) GetBackCoordinate() Coordinate {
-	r.Rotate180()
-	r.Move()
-	c := r.Coordinate
-	r.Undo()
-	r.Rotate180()
-	return c
-}
+type Reindeer Movement
 
 type Maze struct {
 	Map      [][]string
 	Reindeer *Reindeer
 	Exit     Coordinate
 	Score    int
+	Appendix map[Coordinate]*MovementCost
 }
 
 func NewMaze(input string) (*Maze, Reindeer) {
 	m := Maze{
-		Map: [][]string{},
+		Map:      [][]string{},
+		Appendix: map[Coordinate]*MovementCost{},
 	}
 	r := Reindeer{}
 	for y, line := range strings.Split(input, "\n") {
@@ -171,59 +70,63 @@ func (m *Maze) GetNeighbourCoordinates(r *Movement) (Coordinate, Coordinate, Coo
 }
 
 type MovementCost struct {
-	Coordinate *Coordinate
-	From       *Movement
-	Cost       int
-	Done       bool
+	Movement
+	From *MovementCost
+	Cost int
+	Done bool
 }
 
-func (m *Maze) GetOptimalRoute(appendix *map[Coordinate]*MovementCost, queue *[]*MovementCost, current *Movement, score int) {
-	front, left, right, _ := m.GetNeighbourCoordinates(current)
+func (m *Maze) GetOptimalRoute(queue *[]*MovementCost, current *MovementCost) {
+	front, left, right, _ := m.GetNeighbourCoordinates(&current.Movement)
+	score := current.Cost
 
 	if m.Map[front.Y][front.X] == "." {
 		cost := score + 1
-		if movementCost, ok := (*appendix)[front]; ok {
-			if cost < movementCost.Cost {
-				movementCost.Cost = cost
-				movementCost.From = current
+		if mc, ok := m.Appendix[front]; ok {
+			if cost <= mc.Cost {
+				mc.Cost = cost
+				mc.From = current
 			}
 		} else {
-			(*appendix)[front] = &MovementCost{Coordinate: &front, From: current, Cost: cost}
-			*queue = append(*queue, (*appendix)[front])
+			destination := Movement{Coordinate: front, Direction: current.Movement.Direction}
+			m.Appendix[front] = &MovementCost{Movement: destination, From: current, Cost: cost}
+			*queue = append(*queue, m.Appendix[front])
 		}
 	}
 	if m.Map[left.Y][left.X] == "." {
 		cost := score + 1001
-		direction := current.Direction
+		direction := current.Movement.Direction
 		direction.RotateLeft()
-		from := Movement{Coordinate: left, Direction: direction}
-		if movementCost, ok := (*appendix)[left]; ok {
-			if cost < movementCost.Cost {
-				movementCost.Cost = cost
-				movementCost.From = &from
+		from := MovementCost{Movement: Movement{Coordinate: current.Coordinate, Direction: direction}, From: current.From, Cost: current.Cost}
+		if mc, ok := m.Appendix[left]; ok {
+			if cost <= mc.Cost {
+				mc.Cost = cost
+				mc.From = &from
 			}
 		} else {
-			(*appendix)[left] = &MovementCost{Coordinate: &left, From: &from, Cost: cost}
-			*queue = append(*queue, (*appendix)[left])
+			destination := Movement{Coordinate: left, Direction: direction}
+			m.Appendix[left] = &MovementCost{Movement: destination, From: &from, Cost: cost}
+			*queue = append(*queue, m.Appendix[left])
 		}
 	}
 	if m.Map[right.Y][right.X] == "." {
 		cost := score + 1001
-		direction := current.Direction
+		direction := current.Movement.Direction
 		direction.RotateRight()
-		from := Movement{Coordinate: left, Direction: direction}
-		if movementCost, ok := (*appendix)[right]; ok {
-			if cost < movementCost.Cost {
+		from := MovementCost{Movement: Movement{Coordinate: current.Coordinate, Direction: direction}, From: current.From, Cost: current.Cost}
+		if movementCost, ok := m.Appendix[right]; ok {
+			if cost <= movementCost.Cost {
 				movementCost.Cost = cost
 				movementCost.From = &from
 			}
 		} else {
-			(*appendix)[right] = &MovementCost{Coordinate: &right, From: &from, Cost: cost}
-			*queue = append(*queue, (*appendix)[right])
+			destination := Movement{Coordinate: right, Direction: direction}
+			m.Appendix[right] = &MovementCost{Movement: destination, From: &from, Cost: cost}
+			*queue = append(*queue, m.Appendix[right])
 		}
 	}
 
-	(*appendix)[current.Coordinate].Done = true
+	current.Done = true
 
 	var next *MovementCost
 	minimum := math.MaxInt
@@ -235,30 +138,24 @@ func (m *Maze) GetOptimalRoute(appendix *map[Coordinate]*MovementCost, queue *[]
 	}
 
 	if next != nil {
-		m.GetOptimalRoute(appendix, queue, &Movement{Coordinate: *next.Coordinate, Direction: next.From.Direction}, next.Cost)
+		m.GetOptimalRoute(queue, next)
 	}
 }
 
-func Part1() int {
+func Part1(input string) int {
 	defer func(t time.Time) {
 		log.Println("time", time.Since(t))
 	}(time.Now())
 
 	m, r := NewMaze(input)
 
-	movement := Movement{Coordinate: r.Coordinate, Direction: r.Direction, Score: 0}
-	movementCost := MovementCost{Coordinate: &r.Coordinate, From: &movement, Cost: 0}
+	movement := Movement(r)
+	movementCost := MovementCost{Movement: movement, Cost: 0}
+	m.Appendix[r.Coordinate] = &movementCost
 
-	appendix := map[Coordinate]*MovementCost{}
 	queue := []*MovementCost{}
-	queue = append(queue, &movementCost)
-	appendix[r.Coordinate] = &movementCost
 
-	m.GetOptimalRoute(&appendix, &queue, &movement, 0)
+	m.GetOptimalRoute(&queue, &movementCost)
 
-	log.Print(appendix[m.Exit].Cost)
-
-	log.Println("score", appendix[m.Exit].Cost)
-
-	return appendix[m.Exit].Cost
+	return m.Appendix[m.Exit].Cost
 }

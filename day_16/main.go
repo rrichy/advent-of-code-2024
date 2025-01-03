@@ -14,9 +14,6 @@ var sample1 string
 //go:embed sample2
 var sample2 string
 
-//go:embed sample3
-var sample3 string
-
 func main() {
 	tests := []struct {
 		fileName string
@@ -25,7 +22,7 @@ func main() {
 	}{
 		{sample1, 7036, 45},
 		{sample2, 11048, 64},
-		{input, 91464, 0},
+		{input, 91464, 494},
 	}
 
 	log.Println("Day 16: Part 1 Tests")

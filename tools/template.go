@@ -8,14 +8,40 @@ import (
 
 const MAIN_FILE_TEMPLATE = `package main
 
-import _ "embed"
+import (
+	_ "embed"
+	"log"
+)
 
 //go:embed input
 var input string
 
 func main() {
-	Part1()
-	Part2()
+	tests := []struct {
+		fileName string
+		want1    int
+		want2    int
+	}{
+	}
+
+	log.Println("========== Part 1 Tests ==========")
+	for _, test := range tests {
+		got := Part1(test.fileName)
+		if got != test.want1 {
+			log.Fatalf("Failed Test %s\n\tGot %d, Want %d\n", test.fileName, got, test.want1)
+		}
+		log.Printf("Got: %d\n", got)
+	}
+
+	log.Println("========== Part 2 Tests ==========")
+	for _, test := range tests {
+		got := Part2(test.fileName)
+		if got != test.want2 {
+			log.Fatalf("Failed Test %s\n\tGot %d, Want %d\n", test.fileName, got, test.want2)
+			continue
+		}
+		log.Printf("Got: %d\n", got)
+	}
 }
 `
 
@@ -46,7 +72,7 @@ import (
 	"time"
 )
 
-func Part%d() int {
+func Part%d(input string) int {
 	defer func(t time.Time) {
 		log.Println("time", time.Since(t))
 	}(time.Now())
@@ -86,11 +112,11 @@ func main() {
 			log.Fatal(err)
 		}
 
-		// Create test.go
-		err = os.WriteFile(day+"/"+day+"_test.go", []byte(TEST_FILE_TEMPLATE), 0644)
-		if err != nil {
-			log.Fatal(err)
-		}
+		// // Create test.go
+		// err = os.WriteFile(day+"/"+day+"_test.go", []byte(TEST_FILE_TEMPLATE), 0644)
+		// if err != nil {
+		// 	log.Fatal(err)
+		// }
 
 		// Create part_1.go
 		err = os.WriteFile(day+"/part_1.go", []byte(getPartFileTemplate(1)), 0644)
@@ -100,6 +126,12 @@ func main() {
 
 		// Create part_2.go
 		err = os.WriteFile(day+"/part_2.go", []byte(getPartFileTemplate(2)), 0644)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		// Create readme.md
+		err = os.WriteFile(day+"/readme.md", []byte(""), 0644)
 		if err != nil {
 			log.Fatal(err)
 		}

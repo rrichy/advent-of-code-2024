@@ -108,6 +108,20 @@ func SliceContains[T comparable](slice []T, s T) bool {
 	return false
 }
 
+func SliceEqual[T comparable](a, b []T) bool {
+	if len(a) != len(b) {
+		return false
+	}
+
+	for i, v := range a {
+		if v != b[i] {
+			return false
+		}
+	}
+
+	return true
+}
+
 func New2DStringMatrix(s string) [][]string {
 	temp := [][]string{}
 	for _, line := range strings.Split(s, "\n") {
